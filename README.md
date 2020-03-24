@@ -29,9 +29,13 @@ Accept Bitcoin on a website In 3 Steps
           
           btc.confirm_address_payment(
             address="1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK", total_crypto_amount=0.01, confirmation_number=3
-          )#Confirm payment on the address with the specified confirmation and amount it will return tuple of transaction status and value of transaction
+          )#Confirm payment on the address with the specified confirmation and amount it will return a tuple of transaction status and value of transaction
           
-          #For unconfirmed payment, hash of the found transaction is returned (UNCONFIRMED_ADDRESS_BALANCE, transaction_hash)
+          #Returned values
+          #Unconfirmed payment -> (UNCONFIRMED_ADDRESS_BALANCE, transaction_hash)
+          #Confirmed payment -> (CONFIRMED_ADDRESS_BALANCE, sent_value)
+          #Underpaid payment -> (UNDERPAID_ADDRESS_BALANCE, remaining value)
+          #No transaction -> (NO_HASH_ADDRESS_BALANCE, None )
           btc.confirm_address_payment(
             address="1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK", total_crypto_amount=0.01, confirmation_number=5000, tx_hash='hash_returned_when_transaction_was_unconfirmed'
           )
