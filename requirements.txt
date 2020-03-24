@@ -1,0 +1,3 @@
+bitcoin
+forex-python
+blockcypher
