@@ -2,7 +2,7 @@
 What is HD Merchant Wallet ?
 ===============
 It is a simple lightweight tool for receiving cryptocurrency payment, generating hd cryptocurrency wallet addresses and verifying payment made to an address. You can
-receive cryptocurrency payment easily in any python script or web app in just the 3 simple steps. It perfectly works with electrum wallet so you can receive payment with this tool and spend your money with electrum wallet.
+receive cryptocurrency payment easily in any python script or web app in just 3 simple steps. It perfectly works with electrum wallet so you can receive payment with this tool and spend your coins with electrum wallet.
 
 Installation
 ==============
@@ -29,7 +29,7 @@ Accept Bitcoin on a website In 3 Steps
           
           btc.confirm_address_payment(
             address="1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK", total_crypto_amount=0.01, confirmation_number=3
-          )#Confirm payment on the address with the specified confirmation and amount it will return tuple of status and value of transaction
+          )#Confirm payment on the address with the specified confirmation and amount it will return tuple of transaction status and value of transaction
           
           #For unconfirmed payment, hash of the found transaction is returned (UNCONFIRMED_ADDRESS_BALANCE, transaction_hash)
           btc.confirm_address_payment(
