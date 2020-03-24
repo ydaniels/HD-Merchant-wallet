@@ -1,6 +1,6 @@
 import unittest
 import datetime
-from merchant_wallet.backend.btc import (
+from merchant_wallet.backends.btc import (
     convert_from_satoshi,
     extract_latest_transaction,
     confirm_transaction_date_without_previous_hash,
