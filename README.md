@@ -20,7 +20,7 @@ Running
 Accept Bitcoin on a website In 3 Steps
 ======================
  
-          from merchant_wallet.backend.btc import BitcoinBackend
+          from merchant_wallet.backends.btc import BitcoinBackend
           
           
           btc = BitcoinBackend('master_public_key_gotten_from_an_offline_wallet')
