@@ -6,7 +6,7 @@ receive cryptocurrency payment easily in any python script or web app in just 3 
 
 Installation
 ==============
-pip install merchant_wallet
+pip install merchant-wallet
 
 Running
 ========
