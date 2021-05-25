@@ -174,6 +174,8 @@ class BitcoinBackend:
                 value,
                 total_crypto_amount,
             )
+        else:
+            return NO_HASH_ADDRESS_BALANCE, None
 
     def _check_balance_confirmations(
         self,
