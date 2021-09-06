@@ -86,14 +86,14 @@ class TestMerchantWallet(unittest.TestCase):
         res, _ = self.backend.confirm_address_payment(
             "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK",
             0.01,
-            confirmation_number=5000,
+            confirmation_number=200,
             accept_confirmed_bal_without_hash_mins=5256000,
         )
         self.assertEqual(res, self.backend.UNDERPAID_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(
             "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK",
-            0.00010000,
-            confirmation_number=5000,
+            0.00009517,
+            confirmation_number=200,
             accept_confirmed_bal_without_hash_mins=5256000,
         )
         self.assertEqual(res, self.backend.CONFIRMED_ADDRESS_BALANCE)
@@ -104,7 +104,7 @@ class TestMerchantWallet(unittest.TestCase):
             "1E5i2RkxNQi7FC8fbXPoZZG8iHNHtwgVNQ",
             0.00176959,
             tx_hash="cf66b1f816830bd5258f915326a0cc9c4bde37818cfc63e97f9fb1a40d360957",
-            confirmation_number=5000,
+            confirmation_number=500000,
         )
         self.assertEqual(res, self.backend.UNCONFIRMED_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(

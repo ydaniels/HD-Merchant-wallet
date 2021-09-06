@@ -10,7 +10,7 @@ def convert_from_satoshi(amount):
     :param amount: Amount in satoshi unit
     :return: converted btc amount
     """
-    return blockcypher.from_satoshis(amount, "btc")
+    return blockcypher.from_base_unit(amount, "btc")
 
 
 def get_address_details(address, coin_symbol="btc"):
@@ -175,7 +175,7 @@ class BitcoinBackend:
                 total_crypto_amount,
             )
         else:
-            return NO_HASH_ADDRESS_BALANCE, None
+            return self.NO_HASH_ADDRESS_BALANCE, None
 
     def _check_balance_confirmations(
         self,
