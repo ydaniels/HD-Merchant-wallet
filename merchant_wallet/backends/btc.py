@@ -62,6 +62,8 @@ class BitcoinBackend:
     UNDERPAID_ADDRESS_BALANCE = -1
     NO_HASH_ADDRESS_BALANCE = -2
 
+    coin_symbol = "btc"
+
     def __init__(self, public_key):
         self.public_key = public_key
         self.converter = BtcConverter()
@@ -124,7 +126,7 @@ class BitcoinBackend:
                     UNDERPAID_ADDRESS_BALANCE, remaining_crypto_amount |  NO_HASH_ADDRESS_BALANCE, None
         """
         if tx_hash:
-            transaction = get_transaction_details(transaction_hash=tx_hash)
+            transaction = get_transaction_details(transaction_hash=tx_hash, coin_symbol=self.coin_symbol)
             value = self.get_address_output_value(address, transaction["outputs"])
             if value is None:
                 return self.NO_HASH_ADDRESS_BALANCE, None
@@ -135,7 +137,7 @@ class BitcoinBackend:
                 value,
                 total_crypto_amount,
             )
-        data = get_address_details(address)
+        data = get_address_details(address, coin_symbol=self.coin_symbol)
         if data["unconfirmed_balance"] != 0 and data["unconfirmed_n_tx"] > 0:
             return (
                 self.UNCONFIRMED_ADDRESS_BALANCE,
@@ -154,7 +156,7 @@ class BitcoinBackend:
                 value = transaction["value"]
             elif tx_hash:
 
-                transaction = get_transaction_details(transaction_hash=tx_hash)
+                transaction = get_transaction_details(transaction_hash=tx_hash, coin_symbol=self.coin_symbol)
                 value = self.get_address_output_value(address, transaction["outputs"])
                 if value is None:
                     return self.NO_HASH_ADDRESS_BALANCE, None
@@ -192,3 +194,7 @@ class BitcoinBackend:
             remaining_crypto_amount = total_crypto_amount - sent_btc_amount
             return self.UNDERPAID_ADDRESS_BALANCE, remaining_crypto_amount
         return self.CONFIRMED_ADDRESS_BALANCE, sent_value
+
+class BitcoinTestBackend(BitcoinBackend):
+
+    coin_symbol = "btc-testnet"
