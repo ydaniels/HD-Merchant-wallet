@@ -193,7 +193,7 @@ class BitcoinBackend:
         if sent_btc_amount < total_crypto_amount:
             remaining_crypto_amount = total_crypto_amount - sent_btc_amount
             return self.UNDERPAID_ADDRESS_BALANCE, remaining_crypto_amount
-        return self.CONFIRMED_ADDRESS_BALANCE, sent_value
+        return self.CONFIRMED_ADDRESS_BALANCE, sent_btc_amount
 
 class BitcoinTestBackend(BitcoinBackend):
 
