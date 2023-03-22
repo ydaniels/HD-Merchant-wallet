@@ -1,6 +1,6 @@
 import datetime
 import bitcoin as btc
-from forex_python.bitcoin import BtcConverter
+from ..converter.bitpay import BitPayConverter as BtcConverter
 import blockcypher
 
 

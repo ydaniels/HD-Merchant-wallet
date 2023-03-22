@@ -1,3 +1,2 @@
 bitcoin
-forex-python
 blockcypher==1.0.92

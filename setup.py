@@ -32,7 +32,6 @@ setup(name=about['__title__'],
       include_package_data=True,
       install_requires=[
           'bitcoin',
-         'forex-python',
           'blockcypher'
       ],
       scripts=[],
