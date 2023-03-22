@@ -1,7 +1,7 @@
 import datetime
-import bitcoin as btc
-from ..converter.bitpay import BitPayConverter as BtcConverter
 import blockcypher
+from hdwallet import HDWallet
+from ..converter.bitpay import BitPayConverter as BtcConverter
 
 
 def convert_from_satoshi(amount):
@@ -67,20 +67,23 @@ class BitcoinBackend:
     def __init__(self, public_key):
         self.public_key = public_key
         self.converter = BtcConverter()
+        wallet = HDWallet(symbol="BTC")
+        self.wallet = wallet.from_xpublic_key(public_key)
 
     def get_address_output_value(self, address, outputs):
         for output in outputs:
             if address in output["addresses"]:
                 return output["value"]
 
-    def generate_new_address(self, index):
+    def generate_new_address(self, index, address_type="p2pkh"):
         """
         Generate new bitcoin address from a hd public master key based on a particlar index
         Address can be generated sequentially like in the case of electrum
         :param index: Index to use to generate address
+        :param address_type: Address type to generate
         :return: Generated address
         """
-        address = btc.pubkey_to_address(btc.bip32_descend(self.public_key, [0, index]))
+        address = self.wallet.clean_derivation().from_path("{}/{}".format("m/0", str(index))).dumps()['addresses'][address_type.lower()]
         return address
 
     def convert_from_fiat(self, amount, currency="USD"):

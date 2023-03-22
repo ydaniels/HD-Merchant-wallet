@@ -31,8 +31,8 @@ setup(name=about['__title__'],
       packages=  find_packages(),
       include_package_data=True,
       install_requires=[
-          'bitcoin',
-          'blockcypher'
+          'blockcypher',
+          'hdwallet',
       ],
       scripts=[],
       zip_safe=False)

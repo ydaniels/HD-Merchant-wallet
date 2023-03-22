@@ -1,2 +1,2 @@
-bitcoin
 blockcypher==1.0.92
+hdwallet
