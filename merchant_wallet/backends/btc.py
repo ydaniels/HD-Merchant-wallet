@@ -63,11 +63,12 @@ class BitcoinBackend:
     NO_HASH_ADDRESS_BALANCE = -2
 
     coin_symbol = "btc"
+    coin_symbol_wallet = "BTC"
 
     def __init__(self, public_key):
         self.public_key = public_key
         self.converter = BtcConverter()
-        wallet = HDWallet(symbol="BTC")
+        wallet = HDWallet(symbol=self.coin_symbol_wallet)
         self.wallet = wallet.from_xpublic_key(public_key)
 
     def get_address_output_value(self, address, outputs):
@@ -212,3 +213,4 @@ class BitcoinBackend:
 class BitcoinTestBackend(BitcoinBackend):
 
     coin_symbol = "btc-testnet"
+    coin_symbol_wallet = "BTCTEST"
