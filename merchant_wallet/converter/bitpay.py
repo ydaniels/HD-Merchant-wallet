@@ -67,3 +67,43 @@ class BitPayConverter(object):
             except TypeError:
                 raise DecimalFloatMismatchError("convert_btc_to_cur requires coins parameter is of type Decimal when force_decimal=True")
         raise RatesNotAvailableError("BitCoin Rates Source Not Ready For Given date")
+
+    def convert_to_eth(self, amount, currency):
+        """
+        Convert X amount to ETH
+        """
+        if isinstance(amount, Decimal):
+            use_decimal = True
+        else:
+            use_decimal = False
+
+        price = self._get_rate('ETH', currency)
+        if price:
+            if use_decimal:
+                price = Decimal(price)
+            try:
+                converted_eth = amount/price
+                return converted_eth
+            except TypeError:
+                raise DecimalFloatMismatchError("convert_to_eth requires amount parameter is of type Decimal when force_decimal=True")
+        raise RatesNotAvailableError("ETH Rates not available")
+
+    def convert_eth_to_cur(self, coins, currency):
+        """
+        Convert X ETH coins to valid currency amount
+        """
+        if isinstance(coins, Decimal):
+            use_decimal = True
+        else:
+            use_decimal = False
+
+        price = self._get_rate('ETH', currency)
+        if price:
+            if use_decimal:
+                price = Decimal(price)
+            try:
+                converted_amount = coins * price
+                return converted_amount
+            except TypeError:
+                raise DecimalFloatMismatchError("convert_eth_to_cur requires coins parameter is of type Decimal when force_decimal=True")
+        raise RatesNotAvailableError("ETH Rates Source Not Ready For Given date")
