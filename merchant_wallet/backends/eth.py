@@ -12,6 +12,13 @@ def convert_from_wei(amount):
     """
     return blockcypher.from_base_unit(amount, "ether")
 
+def convert_to_wei(amount):
+    """
+    Convert a particular eth amount to wei
+    :param amount: Amount in eth unit
+    :return: converted wei amount
+    """
+    return blockcypher.utils.to_base_unit(amount, "ether")
 
 def get_address_details(address, coin_symbol="eth"):
     """
@@ -105,6 +112,18 @@ class EthereumBackend:
         """
         res = self.converter.convert_eth_to_cur(amount, currency)
         return round(res, 2)
+
+    def create_payment_uri(self, address, total_crypto_amount):
+        """
+        Create payment URI for a particular address and amount
+        e.g. ethereum:0x123455?value=122334
+
+        Args:
+            total_crypto_amount (float): amount in crypto currency
+            address (str): address of receiver
+        """
+        amount_in_wei = convert_to_wei(total_crypto_amount)
+        return "ethereum:{}?value={}".format(address, amount_in_wei)
 
     def confirm_address_payment(
         self,

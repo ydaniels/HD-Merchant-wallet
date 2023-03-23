@@ -106,6 +106,17 @@ class BitcoinBackend:
         res = self.converter.convert_btc_to_cur(amount, currency)
         return round(res, 2)
 
+    def create_payment_uri(self, address, total_crypto_amount):
+        """
+        Create payment URI for a particular address and amount
+        e.g. ethereum:0x123455?value=122334
+
+        Args:
+            total_crypto_amount (float): amount in crypto currency
+            address (str): address of receiver
+        """
+        return "bitcoin:{}?amount={}".format(address, total_crypto_amount)
+
     def confirm_address_payment(
         self,
         address,
