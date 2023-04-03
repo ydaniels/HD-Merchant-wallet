@@ -29,7 +29,7 @@ def get_transaction_details(transaction_hash, coin_symbol="btc"):
     :return: transaction and balance information
     """
     return blockcypher.get_transaction_details(
-        transaction_hash, coin_symbol=coin_symbol
+        transaction_hash, coin_symbol=coin_symbol, limit=100000
     )
 
 
