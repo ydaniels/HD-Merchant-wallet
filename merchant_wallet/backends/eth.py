@@ -152,7 +152,7 @@ class EthereumBackend:
             address = address[2:]
         if tx_hash:
             transaction = get_transaction_details(transaction_hash=tx_hash, coin_symbol=self.coin_symbol)
-            value = self.get_address_output_value(address, transaction["outputs"])
+            value = self.get_address_output_value(address, transaction.get("outputs", []))
             if value is None:
                 return self.NO_HASH_ADDRESS_BALANCE, None
             return self._check_balance_confirmations(
