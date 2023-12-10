@@ -10,11 +10,11 @@ from merchant_wallet.backends.btc import (
 )
 
 
-class TestMerchantWallet(unittest.TestCase):
+
+class TestGenericMerchantWallet(unittest.TestCase):
     def setUp(self):
-        public_key = "xpub6BfKpqjTwvH21wJGWEfxLppb8sU7C6FJge2kWb9315oP4ZVqCXG29cdUtkyu7YQhHyfA5nt63nzcNZHYmqXY" \
-                     "HDxYo8mm1Xq1dAC7YtodwUR"
-        self.backend = BitcoinBackend(public_key)
+        public_key = "zpub6ngHGoj9bYhcpcNisKTkhTKXw2ezUrTSSwxwQRSnqfVSzoS2B4SUzSSxBzhNodjwjGKNHgmiuU8AUXMjFQ1HgEFjVAJs8e7Qab2UkqcNrTo"
+        self.backend = BitcoinBackend(public_key, "LTC")
 
     def test_satoshi_btc_convert(self):
         self.assertEqual(1, convert_from_satoshi(100000000))
@@ -53,47 +53,49 @@ class TestMerchantWallet(unittest.TestCase):
 
     def test_generate_new_address(self):
         self.assertEqual(
-            self.backend.generate_new_address(0), "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK"
+            self.backend.generate_new_address(0, address_type='p2pkh'), "LKFs5jYUjFbALJJEESVbj4bYvJq41JdXcm"
         )
         self.assertEqual(
-            self.backend.generate_new_address(1), "1NVsB73WmDGXSxv77sh9PZENH2x3RRnkDY"
+            self.backend.generate_new_address(1, address_type='p2pkh'), "LLRRrSkvYMEZxGk9qW9KFJpNzemHJkx8Uf"
         )
 
     def test_can_get_adddres_details(self):
-        address = "1NVsB73WmDGXSxv77sh9PZENH2x3RRnkDY"
-        data = get_address_details("1NVsB73WmDGXSxv77sh9PZENH2x3RRnkDY")
-        # print(data)
+        address = "ltc1qzqe3cegsrqzpc3emt04zcszd4gnga4l4rv6uhy"
+
+        data = get_address_details(address, coin_symbol=self.backend.crypto_currency)
+
         self.assertEqual(data["address"], address)
 
     def test_convert_from_fiat(self):
-        result = self.backend.convert_from_fiat(0.01, "USD")
+        result = self.backend.convert_from_fiat(1, "USD")
         self.assertEqual(type(result), float)
 
     def test_convert_to_fiat(self):
-        result = self.backend.convert_to_fiat(1, "EUR")
+        result = self.backend.convert_to_fiat(1, "USD")
         self.assertEqual(type(result), float)
 
     def test_get_transaction_details(self):
-        hash_value = "cf66b1f816830bd5258f915326a0cc9c4bde37818cfc63e97f9fb1a40d360957"
-        res = get_transaction_details(hash_value)
+        hash_value = "beff54dbf22ca7af33aabd2d13a66f32c952b3e3db5b09ee78f32ff98f28623d"
+        res = get_transaction_details(hash_value, self.backend.crypto_currency)
+        print(res)
         self.assertEqual(res["hash"], hash_value)
 
     def test_confirm_address_payment(self):
         res, _ = self.backend.confirm_address_payment(
-            "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK", 0.01, confirmation_number=5000
+            "M9zVjzUgrDrEfAEtSSUPCqVe7uXCPKMspo", 0.01, confirmation_number=5000
         )
         self.assertEqual(res, self.backend.NO_HASH_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(
-            "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK",
-            0.01,
-            confirmation_number=200,
+            "ltc1q2rrxp7fs87ttmh8g7cunjh6e56qkwr3k2eshqc",
+            5.3,
+            confirmation_number=18,
             accept_confirmed_bal_without_hash_mins=5256000,
         )
         self.assertEqual(res, self.backend.UNDERPAID_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(
-            "1Ge6rDuyCdYVGhXZjcK4251q67GXMKx6xK",
-            0.00009517,
-            confirmation_number=200,
+            "ltc1q2rrxp7fs87ttmh8g7cunjh6e56qkwr3k2eshqc",
+            5.1,
+            confirmation_number=12,
             accept_confirmed_bal_without_hash_mins=5256000,
         )
         self.assertEqual(res, self.backend.CONFIRMED_ADDRESS_BALANCE)
@@ -101,24 +103,23 @@ class TestMerchantWallet(unittest.TestCase):
     def test_confirm_address_payment_with_hash(self):
 
         res, _ = self.backend.confirm_address_payment(
-            "1E5i2RkxNQi7FC8fbXPoZZG8iHNHtwgVNQ",
+            "ltc1q2rrxp7fs87ttmh8g7cunjh6e56qkwr3k2eshqc",
             0.00176959,
-            tx_hash="cf66b1f816830bd5258f915326a0cc9c4bde37818cfc63e97f9fb1a40d360957",
+            tx_hash="c3705925f6c66acf08b55e064bb51893b7f8c07394c571baac5f8a47932fb301",
             confirmation_number=500000,
         )
         self.assertEqual(res, self.backend.UNCONFIRMED_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(
-            "1E5i2RkxNQi7FC8fbXPoZZG8iHNHtwgVNQ",
-            0.01176959,
-            tx_hash="cf66b1f816830bd5258f915326a0cc9c4bde37818cfc63e97f9fb1a40d360957",
-            confirmation_number=50,
+            "ltc1q2rrxp7fs87ttmh8g7cunjh6e56qkwr3k2eshqc",
+            6.01176959,
+            tx_hash="c3705925f6c66acf08b55e064bb51893b7f8c07394c571baac5f8a47932fb301",
+            confirmation_number=2,
         )
         self.assertEqual(res, self.backend.UNDERPAID_ADDRESS_BALANCE)
         res, _ = self.backend.confirm_address_payment(
-            "1E5i2RkxNQi7FC8fbXPoZZG8iHNHtwgVNQ",
-            0.00176959,
-            tx_hash="cf66b1f816830bd5258f915326a0cc9c4bde37818cfc63e97f9fb1a40d360957",
-            confirmation_number=50,
+            "ltc1q2rrxp7fs87ttmh8g7cunjh6e56qkwr3k2eshqc",
+            5.1,
+            tx_hash="c3705925f6c66acf08b55e064bb51893b7f8c07394c571baac5f8a47932fb301",
+            confirmation_number=5,
         )
         self.assertEqual(res, self.backend.CONFIRMED_ADDRESS_BALANCE)
-

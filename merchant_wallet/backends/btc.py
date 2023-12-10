@@ -1,16 +1,21 @@
 import datetime
 import bitcoin as btc
-from forex_python.bitcoin import BtcConverter
+from hdwallet import HDWallet
+#from forex_python.bitcoin import BtcConverter
+from merchant_wallet.converter.bitpay import BitPayConverter as BtcConverter
 import blockcypher
 
 
-def convert_from_satoshi(amount):
+def convert_from_satoshi(amount, crypto="btc"):
     """
     Convert a particular satoshi amount to btc
     :param amount: Amount in satoshi unit
     :return: converted btc amount
     """
-    return blockcypher.from_base_unit(amount, "btc")
+    crypto = crypto.lower()
+    if crypto == "ltc":
+        return amount/100000000
+    return blockcypher.from_base_unit(amount, crypto)
 
 
 def get_address_details(address, coin_symbol="btc"):
@@ -19,7 +24,7 @@ def get_address_details(address, coin_symbol="btc"):
     :param address: btc address
     :return: transaction and balance information
     """
-    return blockcypher.get_address_details(address, coin_symbol=coin_symbol)
+    return blockcypher.get_address_details(address, coin_symbol=coin_symbol.lower())
 
 
 def get_transaction_details(transaction_hash, coin_symbol="btc"):
@@ -29,7 +34,7 @@ def get_transaction_details(transaction_hash, coin_symbol="btc"):
     :return: transaction and balance information
     """
     return blockcypher.get_transaction_details(
-        transaction_hash, coin_symbol=coin_symbol
+        transaction_hash, coin_symbol=coin_symbol.lower()
     )
 
 
@@ -62,23 +67,27 @@ class BitcoinBackend:
     UNDERPAID_ADDRESS_BALANCE = -1
     NO_HASH_ADDRESS_BALANCE = -2
 
-    def __init__(self, public_key):
+    def __init__(self, public_key, crypto_currency=None):
         self.public_key = public_key
-        self.converter = BtcConverter()
+        self.crypto_currency = crypto_currency
+        self.converter = BtcConverter(crypto_currency)
+        wallet = HDWallet(symbol=crypto_currency)
+        self.wallet = wallet.from_xpublic_key(public_key)
 
     def get_address_output_value(self, address, outputs):
         for output in outputs:
             if address in output["addresses"]:
                 return output["value"]
 
-    def generate_new_address(self, index):
+    def generate_new_address(self, index, path="m/0", address_type="p2pkh"):
         """
         Generate new bitcoin address from a hd public master key based on a particlar index
         Address can be generated sequentially like in the case of electrum
         :param index: Index to use to generate address
+        :param address_type: Address type to generate
         :return: Generated address
         """
-        address = btc.pubkey_to_address(btc.bip32_descend(self.public_key, [0, index]))
+        address = self.wallet.clean_derivation().from_path("{}/{}".format(path, str(index))).dumps()['addresses'][address_type.lower()]
         return address
 
     def convert_from_fiat(self, amount, currency="USD"):
@@ -88,7 +97,7 @@ class BitcoinBackend:
         :param currency: Fiat currency
         :return: Rounded btc amount
         """
-        res = self.converter.convert_to_btc(amount, currency)
+        res = self.converter.convert_to_crypto(amount, currency)
         return round(res, 8)
 
     def convert_to_fiat(self, amount, currency):
@@ -98,7 +107,7 @@ class BitcoinBackend:
         :param currency: Fiat currency to convert
         :return: Amount in specified currency
         """
-        res = self.converter.convert_btc_to_cur(amount, currency)
+        res = self.converter.convert_crypto_to_fiat(amount, currency)
         return round(res, 2)
 
     def confirm_address_payment(
@@ -124,7 +133,7 @@ class BitcoinBackend:
                     UNDERPAID_ADDRESS_BALANCE, remaining_crypto_amount |  NO_HASH_ADDRESS_BALANCE, None
         """
         if tx_hash:
-            transaction = get_transaction_details(transaction_hash=tx_hash)
+            transaction = get_transaction_details(transaction_hash=tx_hash, coin_symbol=self.crypto_currency)
             value = self.get_address_output_value(address, transaction["outputs"])
             if value is None:
                 return self.NO_HASH_ADDRESS_BALANCE, None
@@ -135,7 +144,7 @@ class BitcoinBackend:
                 value,
                 total_crypto_amount,
             )
-        data = get_address_details(address)
+        data = get_address_details(address, self.crypto_currency)
         if data["unconfirmed_balance"] != 0 and data["unconfirmed_n_tx"] > 0:
             return (
                 self.UNCONFIRMED_ADDRESS_BALANCE,
@@ -154,7 +163,7 @@ class BitcoinBackend:
                 value = transaction["value"]
             elif tx_hash:
 
-                transaction = get_transaction_details(transaction_hash=tx_hash)
+                transaction = get_transaction_details(transaction_hash=tx_hash,  coin_symbol=self.crypto_currency)
                 value = self.get_address_output_value(address, transaction["outputs"])
                 if value is None:
                     return self.NO_HASH_ADDRESS_BALANCE, None
@@ -166,7 +175,6 @@ class BitcoinBackend:
                 if transaction is None:
                     return self.NO_HASH_ADDRESS_BALANCE, None
                 value = transaction["value"]
-
             return self._check_balance_confirmations(
                 transaction["confirmations"],
                 transaction["tx_hash"],
@@ -187,8 +195,9 @@ class BitcoinBackend:
     ):
         if transaction_confirmations < confirmation_number:
             return self.UNCONFIRMED_ADDRESS_BALANCE, tx_hash
-        sent_btc_amount = convert_from_satoshi(sent_value)
+        sent_btc_amount = convert_from_satoshi(sent_value, self.crypto_currency)
         if sent_btc_amount < total_crypto_amount:
             remaining_crypto_amount = total_crypto_amount - sent_btc_amount
             return self.UNDERPAID_ADDRESS_BALANCE, remaining_crypto_amount
-        return self.CONFIRMED_ADDRESS_BALANCE, sent_value
+
+        return self.CONFIRMED_ADDRESS_BALANCE, sent_btc_amount
